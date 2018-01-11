@@ -1,14 +1,20 @@
-var http = require('http');
+var express = require('express');
+var bodyParser = require('body-parser');
+var path = require('path');
 
-var hostname = '127.0.0.1';
-var port = 3000;
+var app = express();
 
-var server = http.createServer(function (req, res) {
-  res.statusCode = 200;
-  res.setHeader('Content-type', 'text/plain');
-  res.end('Hello World');
+// Body Parser Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// Set Static Path
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', function (req, res) {
+  res.send('Hello World 2.0');
 });
 
-server.listen(port, hostname, function () {
-  console.log('Server started on port ' + port);
+app.listen(3000, function () {
+  console.log('Server started on port 3000');
 });
