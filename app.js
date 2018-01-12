@@ -1,8 +1,15 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
+var mongojs = require('mongojs');
+var db = mongojs('men', ['users']);
+var ObjectId = mongojs.ObjectId;
 
 var app = express();
+
+// View Engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Body Parser Middleware
 app.use(bodyParser.json());
@@ -12,7 +19,36 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', function (req, res) {
-  res.send('Hello World 2.0');
+  db.users.find(function (err, docs) {
+    console.log(docs);
+    res.render('index', { users: docs });
+  });
+});
+
+app.post('/users/add', function (req, res) {
+  var newUser = {
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    email: req.body.email,
+  };
+
+  db.users.insert(newUser, function (err, result) {
+    if (err) {
+      console.log(err);
+    }
+
+    res.redirect('/');
+  });
+});
+
+app.delete('/users/delete/:id', function (req, res) {
+  db.users.remove({ _id: ObjectId(req.params.id) }, function (err, result) {
+    if (err) {
+      console.log(err);
+    }
+
+    res.redirect('/');
+  });
 });
 
 app.listen(3000, function () {
